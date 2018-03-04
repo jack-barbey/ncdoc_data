@@ -24,10 +24,11 @@ unzip -o \
 # create schema file
 echo 'column,start,length' > preprocessed/"$FILE_NO_EXTENSION"_schema.csv
 sed -E 's/[ ]{2,}/,/g' preprocessed/"$FILE_NO_EXTENSION".des | \
+grep -vE "^Name," | \
 cut -d',' -f1,4-5 >> preprocessed/"$FILE_NO_EXTENSION"_schema.csv
 
 # do the conversion 
 in2csv -s preprocessed/"$FILE_NO_EXTENSION"_schema.csv \
        preprocessed/"$FILE_NO_EXTENSION".dat | \
-sed -E 's/[?]{2,}//g' > preprocessed/"$FILE_NO_EXTENSION".csv
+tr -d '?' > preprocessed/"$FILE_NO_EXTENSION".csv
 
