@@ -6,6 +6,14 @@ set -e
 # raw files are fixed width and come with definition files.
 # convert those definition files into in2csv format then
 # run in2csv to save in csv format.
+#
+# input: 8-character zipfile
+# outputs: file fixed-width definition
+#          data in csv format
+
+
+# create directories if they don't exist
+mkdir -p "data/raw" "data/preprocessed"
 
 ZIPFILE=$1
 FILE_NO_EXTENSION="${ZIPFILE%.zip}"
@@ -13,23 +21,23 @@ URL="http://www.doc.state.nc.us/offenders"
 
 # download the file
 wget -N \
-     -P preprocessed/ \
+     -P "data/raw/" \
      "$URL"/"$ZIPFILE"
 
 # unzip
 unzip -o \
-      -d preprocessed/ \
-      preprocessed/"$ZIPFILE"
+      -d "data/preprocessed/" \
+      "data/raw/$ZIPFILE"
 
 # create schema file
-echo 'column,start,length' > preprocessed/"$FILE_NO_EXTENSION"_schema.csv
-sed -E 's/[ ]{2,}/,/g' preprocessed/"$FILE_NO_EXTENSION".des | \
+echo 'column,start,length' > "data/preprocessed/$FILE_NO_EXTENSION"_schema.csv
+sed -E 's/[ ]{2,}/,/g' "data/preprocessed/$FILE_NO_EXTENSION".des | \
 tr ' ' '_' | \
 grep -vE "^Name," | \
-cut -d',' -f2,4-5 >> preprocessed/"$FILE_NO_EXTENSION"_schema.csv
+cut -d',' -f2,4-5 >> "data/preprocessed/$FILE_NO_EXTENSION"_schema.csv
 
 # do the conversion 
-in2csv -s preprocessed/"$FILE_NO_EXTENSION"_schema.csv \
-       preprocessed/"$FILE_NO_EXTENSION".dat | \
-tr -d '?' > preprocessed/"$FILE_NO_EXTENSION".csv
+in2csv -s "data/preprocessed/$FILE_NO_EXTENSION"_schema.csv \
+       "data/preprocessed/$FILE_NO_EXTENSION".dat | \
+tr -d '?' > "data/preprocessed/$FILE_NO_EXTENSION".csv
 
