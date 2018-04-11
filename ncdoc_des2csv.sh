@@ -31,9 +31,13 @@ unzip -o \
 
 # create schema file
 echo 'column,start,length' > "data/preprocessed/$FILE_NO_EXTENSION"_schema.csv
-sed -E 's/[ ]{2,}/,/g' "data/preprocessed/$FILE_NO_EXTENSION".des | \
-tr ' ' '_' | \
-grep -vE "^Name," | \
+in2csv -f fixed \
+       -s fixed_width_definitions_format.csv \
+       "data/preprocessed/$FILE_NO_EXTENSION".des |
+awk '(NR>1)' |
+sed -E 's/[ ]{2,}/ /g' |
+tr ' ' '_' |
+grep -vE "^Name," |
 cut -d',' -f2,4-5 >> "data/preprocessed/$FILE_NO_EXTENSION"_schema.csv
 
 # do the conversion 
